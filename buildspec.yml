@@ -31,14 +31,14 @@ phases:
         #- service status docker
   pre_build: 
     commands: 
-        - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
-        - cd karpenter-application-deployment/infra/
-        - terraform init #-chdir="cicd/"
-        - terraform plan #-chdir=cicd/
-        - terraform apply -auto-approve
-        - echo "infra deployed successfully..."
-        - sleep 60  # Halt the build phase for 5 seconds
-        - echo "infra build completes... continues after 60 seconds"
+        # - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+        # - cd karpenter-application-deployment/infra/
+        # - terraform init #-chdir="cicd/"
+        # - terraform plan #-chdir=cicd/
+        # - terraform apply -auto-approve
+        # - echo "infra deployed successfully..."
+        # - sleep 60  # Halt the build phase for 5 seconds
+        #- echo "infra build completes... continues after 60 seconds"
         - echo "setting the eks context aws-auth configmap..."
         - aws eks --region ap-south-1 update-kubeconfig --name karpenter-terraform
         - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
