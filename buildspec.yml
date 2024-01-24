@@ -39,37 +39,44 @@ phases:
         - echo "infra deployed successfully..."
         - sleep 60  # Halt the build phase for 5 seconds
         - echo "infra build completes... continues after 60 seconds"
+        # - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+        # - cd karpenter-application-deployment/karpenter/
+        # - terraform init #-chdir="cicd/"
+        # - terraform plan #-chdir=cicd/
+        # - terraform apply -auto-approve
+        # - sleep 10  # Halt the build phase for 5 seconds
+        # - echo "karpenter build completes.... "
         - echo "setting the eks context aws-auth configmap..."
         - aws eks --region ap-south-1 update-kubeconfig --name karpenter-terraform
-        - cd karpenter-application-deployment/karpenter/
-        - terraform init #-chdir="cicd/"
-        - terraform plan #-chdir=cicd/
-        - terraform apply -auto-approve
-        - sleep 10  # Halt the build phase for 5 seconds
-        - echo "karpenter build completes.... "
+        # - cd karpenter-application-deployment/karpenter/
+        # - terraform init #-chdir="cicd/"
+        # - terraform plan #-chdir=cicd/
+        # - terraform apply -auto-approve
+        # - sleep 10  # Halt the build phase for 5 seconds
+        # - echo "karpenter build completes.... "
 
-  # build: 
-  #   commands:
+  build: 
+    commands:
           
-          #- terraform apply -auto-approve -target="/infra/ecr.tf"  
-          #- cd eks-karpenter-tf-pipeline/application/
-          # - echo "Logging in to Amazon ECR..."
-          # - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 779316103690.dkr.ecr.ap-south-1.amazonaws.com
-          # - ECR_MAIN_URI="7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com"
-          # - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
-          # - echo "Login successfull..."
-          # - echo "building docker image..."
-          # - docker build -t terraform-repo . #-f eks-karpenter-tf-pipeline/application/Dockerfile
-          # - docker tag terraform-repo:latest 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-          # - docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-          # #- docker tag terraform-image:latest 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/terraform-image:latest
-          # - echo "pushing image to ECR"
-          # #- docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-          # - #docker push 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
-          # - echo "successfully pushed image... check ECR repo"
-          # # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
-          # # - terraform apply -auto-approve -target="karpenter-helm.tf"  
-          # # - echo "karpenter deployed successfully..."
+          # - terraform apply -auto-approve -target="/infra/ecr.tf"  
+          # - cd eks-karpenter-tf-pipeline/application/
+          - echo "Logging in to Amazon ECR..."
+          - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 779316103690.dkr.ecr.ap-south-1.amazonaws.com
+          - ECR_MAIN_URI="7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com"
+          - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
+          - echo "Login successfull..."
+          - echo "building docker image..."
+          - docker build -t terraform-repo . #-f eks-karpenter-tf-pipeline/application/Dockerfile
+          - docker tag terraform-repo:latest 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+          - docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+          #- docker tag terraform-image:latest 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/terraform-image:latest
+          - echo "pushing image to ECR"
+          #- docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+          - #docker push 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+          - echo "successfully pushed image... check ECR repo"
+          # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
+          # - terraform apply -auto-approve -target="karpenter-helm.tf"  
+          # - echo "karpenter deployed successfully..."
 #         - 
 # #   pre_build:
 #     commands:
