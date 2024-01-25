@@ -22,10 +22,15 @@ phases:
         - yum update -y 
         - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.5/2024-01-04/bin/linux/amd64/kubectl
         - sudo amazon-linux-extras install docker 
+        - docker ps
+        - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+        - sudo chmod 700 get_helm.sh
+        - sudo ./get_helm.sh
+        - echo "helm installed successfully..."
         #- yum install docker -y
         #- whereis docker
         #- sudo service docker start
-        - docker ps
+
         #- systemctl enable docker.service 
         #- systemctl start docker.service
         #- service status docker
