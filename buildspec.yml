@@ -41,13 +41,12 @@ phases:
         - echo "infra build completes... continues after 60 seconds"
         - echo "setting the eks context aws-auth configmap..."
         - aws eks --region ap-south-1 update-kubeconfig --name karpenter-terraform
-        - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
-        - cd karpenter-application-deployment/infra/karpenter/
-        - terraform init #-chdir="cicd/"
-        - terraform plan #-chdir=cicd/
-        - terraform apply -auto-approve
-        - sleep 10  # Halt the build phase for 5 seconds
-        - echo "karpenter build completes.... "
+        
+        # - terraform init #-chdir="cicd/"
+        # - terraform plan #-chdir=cicd/
+        # - terraform apply -auto-approve
+        # - sleep 10  # Halt the build phase for 5 seconds
+        # - echo "karpenter build completes.... "
         # - cd karpenter-application-deployment/karpenter/
         # - terraform init #-chdir="cicd/"
         # - terraform plan #-chdir=cicd/
@@ -74,6 +73,10 @@ phases:
           #- docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
           - #docker push 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
           - echo "successfully pushed image... check ECR repo"
+          - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+          - cd karpenter-application-deployment/infra/karpenter/
+          - kubectl apply -f provisioner.yaml
+          - kubectl apply -f deployment.yaml
           # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
           # - terraform apply -auto-approve -target="karpenter-helm.tf"  
           # - echo "karpenter deployed successfully..."
