@@ -23,6 +23,7 @@ phases:
         - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.5/2024-01-04/bin/linux/amd64/kubectl
         - sudo amazon-linux-extras install docker 
         - docker ps
+        - yum install openssl -y
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
         - sudo chmod 700 get_helm.sh
         - sudo ./get_helm.sh
