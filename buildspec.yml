@@ -29,14 +29,17 @@ phases:
         - ./get_helm.sh
         - helm version
         - echo "helm installed successfully..."
+        - helm repo add karpenter https://charts.karpenter.sh/
+        - helm repo update
+        - helm search repo karpenter --version v0.32.5
 
 
-        #- yum install docker -y
-        #- whereis docker
-        #- sudo service docker start
+        # - yum install docker -y
+        # - whereis docker
+        # - sudo service docker start
 
-        #- systemctl enable docker.service 
-        #- systemctl start docker.service
+        # - systemctl enable docker.service 
+        # - systemctl start docker.service
         #- service status docker
   pre_build: 
     commands: 
@@ -50,6 +53,20 @@ phases:
         - echo "infra build completes... continues after 60 seconds"
         - echo "setting the eks context aws-auth configmap..."
         - aws eks --region ap-south-1 update-kubeconfig --name karpenter-terraform
+        - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+        - sudo chmod 777 get_helm.sh
+        - ./get_helm.sh
+        - helm version
+        - echo "helm installed successfully..."
+        - helm repo add karpenter https://charts.karpenter.sh/
+        - helm repo update
+        - helm search repo karpenter --version v0.32.5
+        - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+        - cd karpenter-application-deployment/infra/karpenter/
+        - terraform init #-chdir="cicd/"
+        - terraform plan #-chdir=cicd/
+        - terraform apply -auto-approve
+
         
         # - terraform init #-chdir="cicd/"
         # - terraform plan #-chdir=cicd/
@@ -87,48 +104,48 @@ phases:
           - kubectl apply -f provisioner.yaml
           - kubectl apply -f deployment.yaml
           # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
-          # - terraform apply -auto-approve -target="karpenter-helm.tf"  
-          # - echo "karpenter deployed successfully..."
-#         - 
-# #   pre_build:
-#     commands:
-#       - echo "Logging in to Amazon ECR..."
-#       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 252007810724.dkr.ecr.ap-south-1.amazonaws.com
-#       - ECR_MAIN_URI="252007810724.dkr.ecr.ap-south-1.amazonaws.com"
-#       - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
-#       - echo "Login successfull..."
-#       - echo "creating a ecr repo"
-#       - aws cloudformation deploy --template-file ecr.yaml --stack-name repo-ecr --region ap-south-1 --no-fail-on-empty-changeset --disable-rollback
-#       #- aws cloudformation wait stack-create-complete --stack-name ecrstack
-#       - echo "ecr repo created successfully..."
-#   build:
-#     commands: 
-#       - echo "creating eks cluster ..."
-#       - terraform init
-#       - terraform apply -auto-approve
-#       - echo "setting the eks context aws-auth configmap..."
-#       - kubectl config get-contexts
-#       - echo "Updating aws-auth ConfigMap for EKS cluster"
-#       - aws eks update-kubeconfig --name pmg-cluster0066 --region ap-south-1
-#       - kubectl apply -f aws-auth-configmap.yaml 
-#       - echo "eks authentication configmap set successfully... "
-#       - echo "building docker image..."
-#       - docker build -t ecr-repo-image .
-#       - docker tag ecr-repo-image:latest 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
-#       - echo "pushing image to ECR"
-#       - docker push 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
-#       - echo "successfully pushed image... check ECR repo"
+          - terraform apply -auto-approve -target="karpenter-helm.tf"  
+          - echo "karpenter deployed successfully..."
+        
+  # pre_build:
+  #   commands:
+  #     - echo "Logging in to Amazon ECR..."
+  #     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 252007810724.dkr.ecr.ap-south-1.amazonaws.com
+  #     - ECR_MAIN_URI="252007810724.dkr.ecr.ap-south-1.amazonaws.com"
+  #     - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
+  #     - echo "Login successfull..."
+  #     - echo "creating a ecr repo"
+  #     - aws cloudformation deploy --template-file ecr.yaml --stack-name repo-ecr --region ap-south-1 --no-fail-on-empty-changeset --disable-rollback
+  #     #- aws cloudformation wait stack-create-complete --stack-name ecrstack
+  #     - echo "ecr repo created successfully..."
+  # build:
+  #   commands: 
+  #     - echo "creating eks cluster ..."
+  #     - terraform init
+  #     - terraform apply -auto-approve
+  #     - echo "setting the eks context aws-auth configmap..."
+  #     - kubectl config get-contexts
+  #     - echo "Updating aws-auth ConfigMap for EKS cluster"
+  #     - aws eks update-kubeconfig --name pmg-cluster0066 --region ap-south-1
+  #     - kubectl apply -f aws-auth-configmap.yaml 
+  #     - echo "eks authentication configmap set successfully... "
+  #     - echo "building docker image..."
+  #     - docker build -t ecr-repo-image .
+  #     - docker tag ecr-repo-image:latest 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+  #     - echo "pushing image to ECR"
+  #     - docker push 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+  #     - echo "successfully pushed image... check ECR repo"
       
-#   post_build:
-#     commands:
-#       - echo '[{"name":"ecr-repo-image","imageUri":"%s"}]' ${ECR_IMAGE_URI} > imagedefinitions.json
-#       - echo "artifacts uploading done..."
-#       - kubectl apply -f $CODEBUILD_SRC_DIR/deployment.yaml
-#       - kubectl get nodes
-#       - kubectl get deployments -n motadata
-#       - kubectl get ns 
-#       - kubectl describe service java-app-service -n motadata
-#       - kubectl get svc -n motadata
-# artifacts:
-#   files:
-#     - imagedefinitions.json
+  # post_build:
+  #   commands:
+  #     - echo '[{"name":"ecr-repo-image","imageUri":"%s"}]' ${ECR_IMAGE_URI} > imagedefinitions.json
+  #     - echo "artifacts uploading done..."
+  #     - kubectl apply -f $CODEBUILD_SRC_DIR/deployment.yaml
+  #     - kubectl get nodes
+  #     - kubectl get deployments -n motadata
+  #     - kubectl get ns 
+  #     - kubectl describe service java-app-service -n motadata
+  #     - kubectl get svc -n motadata
+artifacts:
+  files:
+    - imagedefinitions.json
