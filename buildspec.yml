@@ -32,8 +32,6 @@ phases:
         - helm repo add karpenter https://charts.karpenter.sh/
         - helm repo update
         - helm search repo karpenter --version v0.32.5
-
-
         # - yum install docker -y
         # - whereis docker
         # - sudo service docker start
@@ -53,6 +51,7 @@ phases:
         - echo "infra build completes... continues after 60 seconds"
         - echo "setting the eks context aws-auth configmap..."
         - aws eks --region ap-south-1 update-kubeconfig --name karpenter-terraform
+        - kubectl get svc
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
         - sudo chmod 777 get_helm.sh
         - ./get_helm.sh
@@ -61,11 +60,27 @@ phases:
         - helm repo add karpenter https://charts.karpenter.sh/
         - helm repo update
         - helm search repo karpenter --version v0.32.5
-        - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
-        - cd karpenter-application-deployment/infra/karpenter/
-        - terraform init #-chdir="cicd/"
-        - terraform plan #-chdir=cicd/
-        - terraform apply -auto-approve
+        - export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output text)"
+        - helm upgrade --install --namespace karpenter --create-namespace \
+          helm upgrade --install --namespace karpenter --create-namespace \
+          karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.32.5 \
+          --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::779316103690:role/karpenter-controller \
+          --set settings.aws.clusterName=karpenter-terraform \
+          --set settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT} \
+          --set defaultProvisioner.create=false \
+          --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-karpenter-terraform \
+          --set settings.aws.interruptionQueueName=karpenter-terraform \
+          --wait 
+        - echo "karpenter deployed successfully..."
+        - kubectl get all -n karpenter
+
+
+
+        # - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+        # - cd karpenter-application-deployment/infra/karpenter/
+        # - terraform init #-chdir="cicd/"
+        # - terraform plan #-chdir=cicd/
+        # - terraform apply -auto-approve
 
         
         # - terraform init #-chdir="cicd/"
@@ -104,8 +119,8 @@ phases:
           - kubectl apply -f provisioner.yaml
           - kubectl apply -f deployment.yaml
           # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
-          - terraform apply -auto-approve -target="karpenter-helm.tf"  
-          - echo "karpenter deployed successfully..."
+          #- terraform apply -auto-approve -target="karpenter-helm.tf"  
+          
         
   # pre_build:
   #   commands:

@@ -34,6 +34,6 @@ resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller_attach" 
 resource "aws_iam_instance_profile" "karpenter" {
   name = "KarpenterNodeInstanceProfileTerraform"
   role = aws_iam_role.nodes.name
-depends_on = [aws_eks_node_group.private-nodes-tf]
+  depends_on = [aws_eks_node_group.private-nodes-tf]
 }
 

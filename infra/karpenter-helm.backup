@@ -40,5 +40,5 @@ resource "helm_release" "karpenter" {
     value = aws_iam_instance_profile.karpenter.name
   }
 
-  depends_on = [aws_iam_instance_profile.karpenter]
+  #depends_on = [aws_iam_instance_profile.karpenter]
 }
