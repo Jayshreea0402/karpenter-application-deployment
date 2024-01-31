@@ -62,9 +62,8 @@ phases:
         - helm repo add karpenter https://charts.karpenter.sh/
         - helm repo update
         - helm search repo karpenter --version v0.32.5
-        - export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output text)"
+        - export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name karpenter-terraform --query "cluster.endpoint" --output text)"
         - helm upgrade --install --namespace karpenter --create-namespace \
-          helm upgrade --install --namespace karpenter --create-namespace \
           karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.32.5 \
           --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::779316103690:role/karpenter-controller \
           --set settings.aws.clusterName=karpenter-terraform \
