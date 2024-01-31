@@ -19,11 +19,6 @@ phases:
         - terraform --version
         - echo "terraform installed successfully..."
         - echo "install kubectl..."
-        - yum update -y 
-        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.5/2024-01-04/bin/linux/amd64/kubectl
-        - echo "kubectl installed successfully..."
-        - sudo amazon-linux-extras install docker 
-        - docker ps
         - yum install openssl -y
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
         - sudo chmod 777 get_helm.sh
@@ -33,130 +28,141 @@ phases:
         - helm repo add karpenter https://charts.karpenter.sh/
         - helm repo update
         - helm search repo karpenter --version v0.32.5
-  pre_build: 
-    commands: 
-        - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
-        - cd karpenter-application-deployment/infra/
-        - terraform init #-chdir="cicd/"
-        - terraform plan #-chdir=cicd/
-        - terraform apply -auto-approve
-        - echo "infra deployed successfully..."
-        - sleep 60  # Halt the build phase for 5 seconds
-        - echo "infra build completes... continues after 60 seconds"
-        - echo "setting the eks context aws-auth configmap..."
-        - aws eks update-kubeconfig --name karpenter-terraform --region ap-south-1
-        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
-        - kubectl apply -f https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
-        - kubectl get svc
-        - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
-        - sudo chmod 777 get_helm.sh
-        - ./get_helm.sh
-        - helm version
-        - echo "helm installed successfully..."
-        - helm repo add karpenter https://charts.karpenter.sh/
-        - helm repo update
-        - helm search repo karpenter --version v0.32.5
-        - export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output text)"
-        - helm upgrade --install --namespace karpenter --create-namespace \
-          helm upgrade --install --namespace karpenter --create-namespace \
-          karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.32.5 \
-          --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::779316103690:role/karpenter-controller \
-          --set settings.aws.clusterName=karpenter-terraform \
-          --set settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT} \
-          --set defaultProvisioner.create=false \
-          --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-karpenter-terraform \
-          --set settings.aws.interruptionQueueName=karpenter-terraform \
-          --wait 
-        - echo "karpenter deployed successfully..."
-        - kubectl get all -n karpenter
+        - yum update -y 
+        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.5/2024-01-04/bin/linux/amd64/kubectl
+        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.5/2024-01-04/bin/linux/amd64/kubectl.sha256
+        - sha256sum -c kubectl.sha256
+        - openssl sha1 -sha256 kubectl
+        - chmod +x ./kubectl
+        - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+        - echo "kubectl installed successfully..."
+        - sudo amazon-linux-extras install docker 
+        - docker ps
+        
+#   pre_build: 
+#     commands: 
+#         - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+#         - cd karpenter-application-deployment/infra/
+#         - terraform init #-chdir="cicd/"
+#         - terraform plan #-chdir=cicd/
+#         - terraform apply -auto-approve
+#         - echo "infra deployed successfully..."
+#         - sleep 60  # Halt the build phase for 5 seconds
+#         - echo "infra build completes... continues after 60 seconds"
+#         - echo "setting the eks context aws-auth configmap..."
+#         - aws eks update-kubeconfig --name karpenter-terraform --region ap-south-1
+#         - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
+#         - kubectl apply -f https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
+#         - kubectl get svc
+#         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+#         - sudo chmod 777 get_helm.sh
+#         - ./get_helm.sh
+#         - helm version
+#         - echo "helm installed successfully..."
+#         - helm repo add karpenter https://charts.karpenter.sh/
+#         - helm repo update
+#         - helm search repo karpenter --version v0.32.5
+#         - export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output text)"
+#         - helm upgrade --install --namespace karpenter --create-namespace \
+#           helm upgrade --install --namespace karpenter --create-namespace \
+#           karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.32.5 \
+#           --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::779316103690:role/karpenter-controller \
+#           --set settings.aws.clusterName=karpenter-terraform \
+#           --set settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT} \
+#           --set defaultProvisioner.create=false \
+#           --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-karpenter-terraform \
+#           --set settings.aws.interruptionQueueName=karpenter-terraform \
+#           --wait 
+#         - echo "karpenter deployed successfully..."
+#         - kubectl get all -n karpenter
 
 
 
-        # - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
-        # - cd karpenter-application-deployment/infra/karpenter/
-        # - terraform init #-chdir="cicd/"
-        # - terraform plan #-chdir=cicd/
-        # - terraform apply -auto-approve
+#         # - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+#         # - cd karpenter-application-deployment/infra/karpenter/
+#         # - terraform init #-chdir="cicd/"
+#         # - terraform plan #-chdir=cicd/
+#         # - terraform apply -auto-approve
 
         
-        # - terraform init #-chdir="cicd/"
-        # - terraform plan #-chdir=cicd/
-        # - terraform apply -auto-approve
-        # - sleep 10  # Halt the build phase for 5 seconds
-        # - echo "karpenter build completes.... "
-        # - cd karpenter-application-deployment/karpenter/
-        # - terraform init #-chdir="cicd/"
-        # - terraform plan #-chdir=cicd/
-        # - terraform apply -auto-approve
-        # - sleep 10  # Halt the build phase for 5 seconds
-        # - echo "karpenter build completes.... "
+#         # - terraform init #-chdir="cicd/"
+#         # - terraform plan #-chdir=cicd/
+#         # - terraform apply -auto-approve
+#         # - sleep 10  # Halt the build phase for 5 seconds
+#         # - echo "karpenter build completes.... "
+#         # - cd karpenter-application-deployment/karpenter/
+#         # - terraform init #-chdir="cicd/"
+#         # - terraform plan #-chdir=cicd/
+#         # - terraform apply -auto-approve
+#         # - sleep 10  # Halt the build phase for 5 seconds
+#         # - echo "karpenter build completes.... "
 
-  build: 
-    commands:
+#   build: 
+#     commands:
           
-          # - terraform apply -auto-approve -target="/infra/ecr.tf"  
-          # - cd eks-karpenter-tf-pipeline/application/
-          - echo "Logging in to Amazon ECR..."
-          - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 779316103690.dkr.ecr.ap-south-1.amazonaws.com
-          - ECR_MAIN_URI="7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com"
-          - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
-          - echo "Login successfull..."
-          - echo "building docker image..."
-          - docker build -t terraform-repo . #-f eks-karpenter-tf-pipeline/application/Dockerfile
-          - docker tag terraform-repo:latest 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-          - docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-          #- docker tag terraform-image:latest 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/terraform-image:latest
-          - echo "pushing image to ECR"
-          #- docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-          - #docker push 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
-          - echo "successfully pushed image... check ECR repo"
-          - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
-          - cd karpenter-application-deployment/infra/karpenter/
-          - kubectl apply -f provisioner.yaml
-          - kubectl apply -f deployment.yaml
-          # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
-          #- terraform apply -auto-approve -target="karpenter-helm.tf"  
+#           # - terraform apply -auto-approve -target="/infra/ecr.tf"  
+#           # - cd eks-karpenter-tf-pipeline/application/
+#           - echo "Logging in to Amazon ECR..."
+#           - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 779316103690.dkr.ecr.ap-south-1.amazonaws.com
+#           - ECR_MAIN_URI="7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com"
+#           - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
+#           - echo "Login successfull..."
+#           - echo "building docker image..."
+#           - docker build -t terraform-repo . #-f eks-karpenter-tf-pipeline/application/Dockerfile
+#           - docker tag terraform-repo:latest 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+#           - docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+#           #- docker tag terraform-image:latest 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/terraform-image:latest
+#           - echo "pushing image to ECR"
+#           #- docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+#           - #docker push 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+#           - echo "successfully pushed image... check ECR repo"
+#           - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
+#           - cd karpenter-application-deployment/infra/karpenter/
+#           - kubectl apply -f provisioner.yaml
+#           - kubectl apply -f deployment.yaml
+#           # - terraform apply -auto-approve -target="karpenter-controller-role.tf"  
+#           #- terraform apply -auto-approve -target="karpenter-helm.tf"  
           
         
-  # pre_build:
-  #   commands:
-  #     - echo "Logging in to Amazon ECR..."
-  #     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 252007810724.dkr.ecr.ap-south-1.amazonaws.com
-  #     - ECR_MAIN_URI="252007810724.dkr.ecr.ap-south-1.amazonaws.com"
-  #     - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
-  #     - echo "Login successfull..."
-  #     - echo "creating a ecr repo"
-  #     - aws cloudformation deploy --template-file ecr.yaml --stack-name repo-ecr --region ap-south-1 --no-fail-on-empty-changeset --disable-rollback
-  #     #- aws cloudformation wait stack-create-complete --stack-name ecrstack
-  #     - echo "ecr repo created successfully..."
-  # build:
-  #   commands: 
-  #     - echo "creating eks cluster ..."
-  #     - terraform init
-  #     - terraform apply -auto-approve
-  #     - echo "setting the eks context aws-auth configmap..."
-  #     - kubectl config get-contexts
-  #     - echo "Updating aws-auth ConfigMap for EKS cluster"
-  #     - aws eks update-kubeconfig --name pmg-cluster0066 --region ap-south-1
-  #     - kubectl apply -f aws-auth-configmap.yaml 
-  #     - echo "eks authentication configmap set successfully... "
-  #     - echo "building docker image..."
-  #     - docker build -t ecr-repo-image .
-  #     - docker tag ecr-repo-image:latest 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
-  #     - echo "pushing image to ECR"
-  #     - docker push 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
-  #     - echo "successfully pushed image... check ECR repo"
+#   # pre_build:
+#   #   commands:
+#   #     - echo "Logging in to Amazon ECR..."
+#   #     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 252007810724.dkr.ecr.ap-south-1.amazonaws.com
+#   #     - ECR_MAIN_URI="252007810724.dkr.ecr.ap-south-1.amazonaws.com"
+#   #     - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
+#   #     - echo "Login successfull..."
+#   #     - echo "creating a ecr repo"
+#   #     - aws cloudformation deploy --template-file ecr.yaml --stack-name repo-ecr --region ap-south-1 --no-fail-on-empty-changeset --disable-rollback
+#   #     #- aws cloudformation wait stack-create-complete --stack-name ecrstack
+#   #     - echo "ecr repo created successfully..."
+#   # build:
+#   #   commands: 
+#   #     - echo "creating eks cluster ..."
+#   #     - terraform init
+#   #     - terraform apply -auto-approve
+#   #     - echo "setting the eks context aws-auth configmap..."
+#   #     - kubectl config get-contexts
+#   #     - echo "Updating aws-auth ConfigMap for EKS cluster"
+#   #     - aws eks update-kubeconfig --name pmg-cluster0066 --region ap-south-1
+#   #     - kubectl apply -f aws-auth-configmap.yaml 
+#   #     - echo "eks authentication configmap set successfully... "
+#   #     - echo "building docker image..."
+#   #     - docker build -t ecr-repo-image .
+#   #     - docker tag ecr-repo-image:latest 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+#   #     - echo "pushing image to ECR"
+#   #     - docker push 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+#   #     - echo "successfully pushed image... check ECR repo"
       
-  # post_build:
-  #   commands:
-  #     - echo '[{"name":"ecr-repo-image","imageUri":"%s"}]' ${ECR_IMAGE_URI} > imagedefinitions.json
-  #     - echo "artifacts uploading done..."
-  #     - kubectl apply -f $CODEBUILD_SRC_DIR/deployment.yaml
-  #     - kubectl get nodes
-  #     - kubectl get deployments -n motadata
-  #     - kubectl get ns 
-  #     - kubectl describe service java-app-service -n motadata
-  #     - kubectl get svc -n motadata
-artifacts:
-  files:
-    - imagedefinitions.json
+#   # post_build:
+#   #   commands:
+#   #     - echo '[{"name":"ecr-repo-image","imageUri":"%s"}]' ${ECR_IMAGE_URI} > imagedefinitions.json
+#   #     - echo "artifacts uploading done..."
+#   #     - kubectl apply -f $CODEBUILD_SRC_DIR/deployment.yaml
+#   #     - kubectl get nodes
+#   #     - kubectl get deployments -n motadata
+#   #     - kubectl get ns 
+#   #     - kubectl describe service java-app-service -n motadata
+#   #     - kubectl get svc -n motadata
+# artifacts:
+#   files:
+#     - imagedefinitions.json
