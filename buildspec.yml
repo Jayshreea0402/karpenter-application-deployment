@@ -35,6 +35,7 @@ phases:
         - openssl sha1 -sha256 kubectl
         - chmod +x ./kubectl
         - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+        - kubectl version 
         - echo "kubectl installed successfully..."
         - sudo amazon-linux-extras install docker 
         - docker ps
