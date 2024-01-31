@@ -22,6 +22,15 @@ resource "aws_iam_role_policy_attachment" "amazon-eks-cluster-policy" {
   role       = aws_iam_role.eks-cluster.name
 }
 
+##adding new
+# resource "aws_iam_policy" "eks_cluster_policy" {
+#   policy = file("./eks-iam.json")
+#   name   = "eks_cluster_policy"
+# }
+# resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+#   policy_arn = "arn:aws:iam::aws:policy/eks_cluster_policy"
+#   role       = aws_iam_role.eks-cluster.name
+# }
 resource "aws_eks_cluster" "cluster" {
   name     = var.cluster_name
   version  = "1.28"

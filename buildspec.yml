@@ -21,6 +21,7 @@ phases:
         - echo "install kubectl..."
         - yum update -y 
         - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.5/2024-01-04/bin/linux/amd64/kubectl
+        - echo "kubectl installed successfully..."
         - sudo amazon-linux-extras install docker 
         - docker ps
         - yum install openssl -y
@@ -32,13 +33,6 @@ phases:
         - helm repo add karpenter https://charts.karpenter.sh/
         - helm repo update
         - helm search repo karpenter --version v0.32.5
-        # - yum install docker -y
-        # - whereis docker
-        # - sudo service docker start
-
-        # - systemctl enable docker.service 
-        # - systemctl start docker.service
-        #- service status docker
   pre_build: 
     commands: 
         - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
@@ -50,7 +44,9 @@ phases:
         - sleep 60  # Halt the build phase for 5 seconds
         - echo "infra build completes... continues after 60 seconds"
         - echo "setting the eks context aws-auth configmap..."
-        - aws eks --region ap-south-1 update-kubeconfig --name karpenter-terraform
+        - aws eks update-kubeconfig --name karpenter-terraform --region ap-south-1
+        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
+        - kubectl apply -f https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
         - kubectl get svc
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
         - sudo chmod 777 get_helm.sh
