@@ -51,9 +51,9 @@ phases:
         - echo "infra build completes... continues after 60 seconds"
         - echo "setting the eks context aws-auth configmap..."
         - aws eks update-kubeconfig --name karpenter-terraform --region ap-south-1
-        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
-        - kubectl apply -f https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
         - kubectl get svc
+        - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/docs/eks-console-full-access.yaml
+        - kubectl apply -f eks-console-full-access.yaml
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
         - sudo chmod 777 get_helm.sh
         - ./get_helm.sh
