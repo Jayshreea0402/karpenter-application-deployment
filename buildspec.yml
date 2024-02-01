@@ -69,7 +69,7 @@ phases:
           --set settings.aws.clusterName=karpenter-terraform \
           --set settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT} \
           --set defaultProvisioner.create=false \
-          --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-karpenter-terraform \
+          --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfileTerraform-karpenter-terraform \
           --set settings.aws.interruptionQueueName=karpenter-terraform \
           --wait 
         - echo "karpenter deployed successfully..."
