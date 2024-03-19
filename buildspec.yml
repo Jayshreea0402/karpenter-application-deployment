@@ -64,7 +64,7 @@ phases:
         - export CLUSTER_ENDPOINT="$(aws eks describe-cluster --name karpenter-terraform --query "cluster.endpoint" --output text)"
         - helm --install --namespace karpenter --create-namespace \
           karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.32.5 \
-          --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::779316103690:role/karpenter-controller \
+          --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::${{ACCOUNT_ID}}:role/karpenter-controller \
           --set settings.aws.clusterName=karpenter-terraform \
           --set settings.aws.clusterEndpoint=${CLUSTER_ENDPOINT} \
           --set defaultProvisioner.create=false \
@@ -107,12 +107,12 @@ phases:
 #           - echo "Login successfull..."
 #           - echo "building docker image..."
 #           - docker build -t terraform-repo . #-f eks-karpenter-tf-pipeline/application/Dockerfile
-#           - docker tag terraform-repo:latest 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-#           - docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-#           #- docker tag terraform-image:latest 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/terraform-image:latest
+#           - docker tag terraform-repo:latest account-id.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+#           - docker push account-id.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+#           #- docker tag terraform-image:latest account-id.dkr.ecr.ap-south-1.amazonaws.com/terraform-image:latest
 #           - echo "pushing image to ECR"
-#           #- docker push 779316103690.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
-#           - #docker push 7793-1610-3690.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+#           #- docker push account-id.dkr.ecr.ap-south-1.amazonaws.com/terraform-repo:latest
+#           - #docker push account-id.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
 #           - echo "successfully pushed image... check ECR repo"
 #           - git clone https://github.com/Jayshreea0402/karpenter-application-deployment.git
 #           - cd karpenter-application-deployment/infra/karpenter/
@@ -125,8 +125,8 @@ phases:
 #   # pre_build:
 #   #   commands:
 #   #     - echo "Logging in to Amazon ECR..."
-#   #     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 252007810724.dkr.ecr.ap-south-1.amazonaws.com
-#   #     - ECR_MAIN_URI="252007810724.dkr.ecr.ap-south-1.amazonaws.com"
+#   #     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin account-id.dkr.ecr.ap-south-1.amazonaws.com
+#   #     - ECR_MAIN_URI="account-id.dkr.ecr.ap-south-1.amazonaws.com"
 #   #     - ECR_IMAGE_URI="${ECR_MAIN_URI}/${ECR_REPO_NAME}:latest"
 #   #     - echo "Login successfull..."
 #   #     - echo "creating a ecr repo"
@@ -146,9 +146,9 @@ phases:
 #   #     - echo "eks authentication configmap set successfully... "
 #   #     - echo "building docker image..."
 #   #     - docker build -t ecr-repo-image .
-#   #     - docker tag ecr-repo-image:latest 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+#   #     - docker tag ecr-repo-image:latest account-id.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
 #   #     - echo "pushing image to ECR"
-#   #     - docker push 252007810724.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
+#   #     - docker push account-id.dkr.ecr.ap-south-1.amazonaws.com/ecr-repo-image:latest
 #   #     - echo "successfully pushed image... check ECR repo"
       
 #   # post_build:
